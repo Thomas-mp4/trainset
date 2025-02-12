@@ -74,6 +74,59 @@ export default {
       reader.readAsBinaryString(fileInput);
       reader.onloadend = () => {
         fileText = $.csv.toArrays(reader.result);
+
+        // OpenEarable .csv Support (Both OpenEarable dashboard data, and EdgeML (OpenEarable) labeled data)
+        if (fileText[0][0].toLowerCase() === 'time') {
+          alert('OpenEarable file detected. Reformatting data to match TRAINSET format.');
+          let headers = fileText[0];
+
+          // Extract the index of the first column that does not start with 'sensor_'
+          let labelIndex = headers.findIndex((header, i) => i > 0 && !header.startsWith("sensor_"));
+          let containsLabels = labelIndex !== -1; // If no labels exist, `labelIndex` will be -1
+          if (!containsLabels) {
+            labelIndex = headers.length; // Assume all columns are sensor data
+          }
+
+          let reformattedData = [];
+          reformattedData.push(['series', 'timestamp', 'value', 'label']);
+          let startDatastamp = DateTime.fromISO("2000-01-01T00:00:00Z", { setZone: true });
+
+          // Iterate over rows (excluding header row)
+          for (let i = 1; i < fileText.length; i++) {
+            let reformattedTimestamp = startDatastamp.plus({ seconds: i - 1 }).toISO();
+
+            // Extract sensor data
+            for (let j = 1; j < labelIndex; j++) {
+              let sensorName = headers[j];
+              let value = fileText[i][j];
+              // Add in TRAINSET format
+              reformattedData.push([sensorName, reformattedTimestamp, value, '']);
+            }
+
+            // Extract label data (if present)
+            if (containsLabels) {
+              let assignedLabel = '';
+
+              // Check if any 'x' is present in the label columns
+              for (let j = labelIndex; j < headers.length; j++) {
+                if (fileText[i][j].toLowerCase() === 'x') {
+                  assignedLabel = headers[j];
+                  // Prune to 16 characters (TRAINSET label limit)
+                  assignedLabel = assignedLabel.substring(0, Math.min(16, assignedLabel.length));
+                  break;
+                }
+              }
+              // Assign label to all sensor readings for this timestamp
+              reformattedData.forEach(entry => {
+                if (entry[1] === reformattedTimestamp) {
+                  entry[3] = assignedLabel;
+                }
+              });
+            }
+          }
+          // Replace original data with reformatted data
+          fileText = reformattedData;
+        }
         headerStr = fileText[0].toString();
         for (var i = 1; i < fileText.length ; i++) {
           var dateMatches = fileText[i][1].match(/^((\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})(.(\d{3}))?(([+-](\d{2})\:?(\d{2}))|Z))$/)
