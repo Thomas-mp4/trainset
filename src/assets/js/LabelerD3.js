@@ -853,23 +853,23 @@ export function drawLabeler(plottingApp) {
       plottingApp.shiftKey = false;
     }
     var code = d3.event.keyCode;
-    if (code == 38) {
-      // handle up arrowkey
+    if (code === 38 || code === 87) {
+      // Up arrow key or 'W'
       transformContext(0, -2);
       d3.event.preventDefault();
-    } else if (code == 40) {
-      // handle down arrowkey
+    } else if (code === 40 || code === 83) {
+      // Down arrow key or 'S'
       transformContext(0, 2);
       d3.event.preventDefault();
-    } else if (code === 37) {
-      // handle left arrowkey
+    } else if (code === 37 || code === 65) {
+      // Left arrow key or 'A'
       if (plottingApp.shiftKey) {
         transformContext(-9, 0);
       } else {
         transformContext(-1, 0);
       }
-    } else if (code === 39) {
-      // handle right arrowkey
+    } else if (code === 39 || code === 68) {
+      // Right arrow key or 'D'
       if (plottingApp.shiftKey) {
         transformContext(9, 0);
       } else {

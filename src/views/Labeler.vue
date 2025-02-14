@@ -39,6 +39,12 @@
               <kbd>→</kbd> or <kbd>←</kbd> : pan</br>
               <kbd>SHIFT</kbd> + <kbd>→</kbd> or <kbd>←</kbd> : fast pan</br>
               <kbd>↑</kbd> or <kbd>↓</kbd>: zoom</br>
+              <br>
+              <div>Alternatively, using WASD</div>
+              <kbd>A</kbd> or <kbd>D</kbd> : pan</br>
+              <kbd>SHIFT</kbd> + <kbd>A</kbd> or <kbd>D</kbd> : fast pan</br>
+              <kbd>W</kbd> or <kbd>S</kbd>: zoom</br>
+              <br>
               <strong>Click & Drag</strong> the bottom context bar to adjust focus region</br>
             </div>
           </div>
