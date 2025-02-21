@@ -5,7 +5,7 @@
   "author": "Rush Kapoor <rush.kapoor@berkeley.edu>",
   "private": true,
   "scripts": {
-    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "dev": "NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "node server.js",
     "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js"
