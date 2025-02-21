@@ -91,9 +91,17 @@ export default {
           reformattedData.push(['series', 'timestamp', 'value', 'label']);
           let startDatastamp = DateTime.fromISO("2000-01-01T00:00:00Z", { setZone: true });
 
+          let first_timestamp = fileText[1][0]; 
+          let previous_timestamp = first_timestamp
+
           // Iterate over rows (excluding header row)
           for (let i = 1; i < fileText.length; i++) {
-            let reformattedTimestamp = startDatastamp.plus({ seconds: i - 1 }).toISO();
+            if (fileText[i][0] < previous_timestamp){
+              alert('Non-decreasing timestamps! Data might not be accurate')
+              this.error();
+              break;
+            }
+            let reformattedTimestamp = startDatastamp.plus({ milliseconds: fileText[i][0] - first_timestamp }).toISO();
 
             // Extract sensor data
             for (let j = 1; j < labelIndex; j++) {
