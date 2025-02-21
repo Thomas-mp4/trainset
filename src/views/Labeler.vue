@@ -82,6 +82,14 @@
               </div>
             </div>
           </div>
+          <div><br>Extra Label Features <br></div>
+          <button id="manualSync">Force sync all series' labels to active series' labels</button>
+
+          <br>
+          <label class="switch">
+            <input type="checkbox" id="syncToggle">
+            <span class="slider"> Sync labelling actions across all timeseries</span>
+          </label>
         </div>
       </div>
 

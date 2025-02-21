@@ -445,11 +445,23 @@ export function drawLabeler(plottingApp) {
   }
 
   /* toggle label of point using selected label */
-  function toggleSelected(point) {
-    if (point.label != plottingApp.selectedLabel) {
+  function toggleSelected(point, multi_select = false, shift_key = false) {
+    if (point.label !== plottingApp.selectedLabel && !shift_key) {
       point.label = plottingApp.selectedLabel;
-    } else {
-      point.label = '';
+    } else if (!multi_select || shift_key) {
+      point.label = "";
+    }
+
+    if (plottingApp.syncEnabled === true) {
+      const dataFromOtherSeries = plottingApp.allData.filter(
+        d => d.series !== plottingApp.selectedSeries
+      );
+
+      dataFromOtherSeries.forEach(d => {
+        if (d.actual_time.ts === point.actual_time.ts) {
+          d.label = point.label;
+        }
+      });
     }
   }
 
@@ -596,11 +608,14 @@ export function drawLabeler(plottingApp) {
           var d = node.data;
           // change selected property of points in brush
           if (!plottingApp.shiftKey) {
-            d.label = ((d.time >= brush_xmin) && (d.time <= brush_xmax) && (d.val >= brush_ymin) && (d.val <= brush_ymax)) ? plottingApp.selectedLabel : d.label;
-          } else {
-            d.label = ((d.time >= brush_xmin) && (d.time <= brush_xmax) && (d.val >= brush_ymin) && (d.val <= brush_ymax)) ? '' : d.label;
+            if ((d.time >= brush_xmin) && (d.time <= brush_xmax) && (d.val >= brush_ymin) && (d.val <= brush_ymax)) {
+              toggleSelected(d,true,false)
           }
-          
+          } else {
+            if (((d.time >= brush_xmin) && (d.time <= brush_xmax) && (d.val >= brush_ymin) && (d.val <= brush_ymax))){
+              toggleSelected(d,true,true)
+            }
+          }
         } while (node = node.next);
       }
       
@@ -789,6 +804,32 @@ export function drawLabeler(plottingApp) {
     setReference($("#referenceSelect option:selected").val());
     replot();
   })
+
+  // Auto sync
+  $("#syncToggle").change(function() {
+    plottingApp.syncEnabled = $("#syncToggle").is(":checked");
+  });
+
+  $("#manualSync").click(function() {
+    const dataFromSelectedSeries = plottingApp.allData.filter(
+      d => d.series === plottingApp.selectedSeries
+    );
+    const dataFromOtherSeries = plottingApp.allData.filter(
+      d => d.series !== plottingApp.selectedSeries
+    );
+    dataFromSelectedSeries.forEach(point => {
+      dataFromOtherSeries.forEach(d => {
+        if (d.actual_time.ts === point.actual_time.ts) {
+          d.label = point.label;
+        }
+      });
+    });
+    updateBrushData();
+    updateYAxis();
+    updateMain();
+    plotContext();
+    updateSelection();
+  });
 
   $("#labelSelect").change(function() {
     plottingApp.selectedLabel = $("#labelSelect option:selected").attr("name");
